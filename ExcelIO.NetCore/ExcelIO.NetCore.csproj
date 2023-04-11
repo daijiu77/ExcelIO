@@ -2,15 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>DJ</Authors>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Aspose.Cells">
-      <HintPath>..\Libs\Aspose.Cells.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI">
-      <HintPath>..\Libs\NPOI.dll</HintPath>
-    </Reference>
+    <PackageReference Include="DJExt.Aspose.Cells" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\ExcelIO.Framework.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,11 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Aspose.Cells">
-      <HintPath>..\Libs\Aspose.Cells.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI">
-      <HintPath>..\Libs\NPOI.dll</HintPath>
+    <Reference Include="Aspose.Cells, Version=8.0.0.0, Culture=neutral, PublicKeyToken=00725b1ceb58d0a9, processorArchitecture=MSIL">
+      <HintPath>..\packages\DJExt.Aspose.Cells.1.0.0\lib\net46\Aspose.Cells.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,6 +56,9 @@
     <Compile Include="IExcelPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextAlign.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

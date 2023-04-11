@@ -4,15 +4,13 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>DJ</Authors>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Aspose.Cells">
-      <HintPath>..\Libs\Aspose.Cells.dll</HintPath>
-    </Reference>
-    <Reference Include="NPOI">
-      <HintPath>..\Libs\NPOI.dll</HintPath>
-    </Reference>
+    <PackageReference Include="DJExt.Aspose.Cells" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
