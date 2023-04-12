@@ -98,14 +98,12 @@ namespace ExcelIO.NetCore
             //RemoveEvaluation();
         }
 
-        private bool IsXlsx(string excelPath, ref bool enable)
+        private bool IsXlsx(string excelPath)
         {
             bool isXLSX = false;
-            enable = false;
             Regex rg = new Regex(@"\.(?<ExtName>((xls)|(xlsx)))$", RegexOptions.IgnoreCase);
             if (rg.IsMatch(excelPath))
             {
-                enable = true;
                 string ExtName = rg.Match(excelPath).Groups["ExtName"].Value.ToLower();
                 isXLSX = ExtName.Equals("xlsx");
             }
@@ -168,13 +166,13 @@ namespace ExcelIO.NetCore
         void IExcelPlugin.Save()
         {
             if (string.IsNullOrEmpty(excelPath)) return;
-            bool enable = false;
-            bool is_xlsx = IsXlsx(excelPath, ref enable);
-            if (enable)
+            Regex rg = new Regex(@"\.(?<ExtName>((xls)|(xlsx)))$", RegexOptions.IgnoreCase);
+            if (rg.IsMatch(excelPath))
             {
+                string ExtName = rg.Match(excelPath).Groups["ExtName"].Value.ToLower();
                 try
                 {
-                    if (false == is_xlsx)
+                    if (ExtName.Equals("xls"))
                     {
                         workbook.Save(excelPath, SaveFormat.Excel97To2003);
                     }
