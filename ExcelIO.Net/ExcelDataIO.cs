@@ -160,12 +160,7 @@ namespace ExcelIO.Net
                 row = excelPlugin.GetRow(worksheet, y);
                 if (!isObjectOrBaseType)
                 {
-                    if (false == isList && null != actionT && y == startY)
-                    {
-                        t = (T)Activator.CreateInstance(typeof(T));
-                        isEnabled = true;
-                    }
-                    else if (isList)
+                    if ((null != actionT) || isList)
                     {
                         t = (T)Activator.CreateInstance(typeof(T));
                         isEnabled = true;
@@ -174,12 +169,7 @@ namespace ExcelIO.Net
 
                 if (null != dataTable)
                 {
-                    if (isNullDataTable && y == startY)
-                    {
-                        dataRow = dataTable.NewRow();
-                        isEnabled = true;
-                    }
-                    else if (false == isNullDataTable)
+                    if ((null != action) || (false == isNullDataTable))
                     {
                         dataRow = dataTable.NewRow();
                         isEnabled = true;
@@ -392,7 +382,10 @@ namespace ExcelIO.Net
         byte[] IExcelDataIO.ToExcelGetBody(string excelPath)
         {
             object workbook = excelPlugin.GetWorkbook(excelPath);
-            return excelPlugin.GetExcelData(workbook);
+            byte[] data = excelPlugin.GetExcelData(workbook);
+            excelPlugin.Dispose();
+            return data;
         }
+
     }
 }
