@@ -60,7 +60,32 @@ namespace ExcelIO.Framework
                         }
                         catch (Exception)
                         {
+                            //throw;
+                        }
+                    }
 
+                    mi = workbook.GetType().GetMethod("Quit");
+                    if (null != mi)
+                    {
+                        try
+                        {
+                            mi.Invoke(workbook, null);
+                        }
+                        catch (Exception)
+                        {
+                            //throw;
+                        }
+                    }
+
+                    mi = workbook.GetType().GetMethod("Close");
+                    if (null != mi)
+                    {
+                        try
+                        {
+                            mi.Invoke(workbook, null);
+                        }
+                        catch (Exception)
+                        {
                             //throw;
                         }
                     }

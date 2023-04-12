@@ -1,4 +1,4 @@
-﻿using Aspose.Cells;
+using Aspose.Cells;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -45,7 +45,7 @@ namespace ExcelIO.NetCore
         {
             if (null != workbook)
             {
-                if(null != workbook as IDisposable)
+                if (null != workbook as IDisposable)
                 {
                     ((IDisposable)workbook).Dispose();
                 }
@@ -60,7 +60,32 @@ namespace ExcelIO.NetCore
                         }
                         catch (Exception)
                         {
+                            //throw;
+                        }
+                    }
 
+                    mi = workbook.GetType().GetMethod("Quit");
+                    if (null != mi)
+                    {
+                        try
+                        {
+                            mi.Invoke(workbook, null);
+                        }
+                        catch (Exception)
+                        {
+                            //throw;
+                        }
+                    }
+
+                    mi = workbook.GetType().GetMethod("Close");
+                    if (null != mi)
+                    {
+                        try
+                        {
+                            mi.Invoke(workbook, null);
+                        }
+                        catch (Exception)
+                        {
                             //throw;
                         }
                     }

@@ -1,4 +1,5 @@
-﻿using System;
+using Aspose.Cells;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -283,6 +284,7 @@ namespace ExcelIO.NetCore
             {
                 results[i] = excelPlugin.GetValue(row, i);
             }
+            excelPlugin.Dispose();
             return results;
             //throw new NotImplementedException();
         }
@@ -385,5 +387,6 @@ namespace ExcelIO.NetCore
         {
             return excelPlugin.GetExcelData(workbook);
         }
+
     }
 }

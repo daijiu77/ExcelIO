@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -19,5 +19,6 @@ namespace ExcelIO.NetCore
         void FromExcel<T>(ExcelSheet excelSheet, string excelPath, Action<T> action);
 
         string[] GetRowData(string excelPath, int rowIndex);
+
     }
 }

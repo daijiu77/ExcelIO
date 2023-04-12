@@ -19,5 +19,6 @@ namespace ExcelIO.Framework
         void FromExcel<T>(ExcelSheet excelSheet, string excelPath, Action<T> action);
 
         string[] GetRowData(string excelPath, int rowIndex);
+
     }
 }
