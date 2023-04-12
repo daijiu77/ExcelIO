@@ -385,8 +385,14 @@ namespace ExcelIO.Framework
 
         byte[] IExcelDataIO.ToExcelGetBody()
         {
+            if (null == workbook) return null;
             return excelPlugin.GetExcelData(workbook);
         }
 
+        byte[] IExcelDataIO.ToExcelGetBody(string excelPath)
+        {
+            object workbook = excelPlugin.GetWorkbook(excelPath);
+            return excelPlugin.GetExcelData(workbook);
+        }
     }
 }

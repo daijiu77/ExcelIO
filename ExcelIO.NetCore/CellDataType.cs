@@ -5,7 +5,7 @@ namespace ExcelIO.NetCore
         /// <summary>
         /// General
         /// </summary>
-        General1 = 0,
+        General = 0,
         /// <summary>
         /// 0
         /// </summary>
@@ -145,6 +145,6 @@ namespace ExcelIO.NetCore
         /// <summary>
         /// @
         /// </summary>
-        Text1 = 49
+        Text = 49
     }
 }

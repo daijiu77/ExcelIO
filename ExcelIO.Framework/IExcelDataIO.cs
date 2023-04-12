@@ -11,6 +11,8 @@ namespace ExcelIO.Framework
         ExcelRowChildren ToExcelWithExcelRowChildren();
         byte[] ToExcelGetBody();
 
+        byte[] ToExcelGetBody(string excelPath);
+
         List<T> FromExcel<T>(ExcelSheet excelSheet, string excelPath);
         DataTable FromExcel(ExcelSheet excelSheet, string excelPath);
         DataTable FromExcel(ExcelSheet excelSheet, string excelPath, bool dataTableHeaderOfExcelHeader);

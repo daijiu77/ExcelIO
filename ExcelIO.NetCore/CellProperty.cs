@@ -14,7 +14,7 @@ namespace ExcelIO.NetCore
 
         public TextAlign textAlign { get; set; }
 
-        public CellDataType cellDataType { get; set; } = CellDataType.Text1;
+        public CellDataType cellDataType { get; set; } = CellDataType.Text;
 
         private int GetIntFromHex(string strHex)
         {
