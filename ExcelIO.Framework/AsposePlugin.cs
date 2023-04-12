@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace ExcelIO.Framework
@@ -44,7 +45,28 @@ namespace ExcelIO.Framework
         {
             if (null != workbook)
             {
-                //workbook.Dispose();
+                if (null != workbook as IDisposable)
+                {
+                    ((IDisposable)workbook).Dispose();
+                }
+                else
+                {
+                    MethodInfo mi = workbook.GetType().GetMethod("Dispose");
+                    if (null != mi)
+                    {
+                        try
+                        {
+                            mi.Invoke(workbook, null);
+                        }
+                        catch (Exception)
+                        {
+
+                            //throw;
+                        }
+                    }
+                    //workbook.Dispose();
+                }
+
                 workbook = null;
             }
 

@@ -17,5 +17,7 @@ namespace ExcelIO.Net
 
         void FromExcel(ExcelSheet excelSheet, string excelPath, Action<DataRow> action);
         void FromExcel<T>(ExcelSheet excelSheet, string excelPath, Action<T> action);
+
+        string[] GetRowData(string excelPath, int rowIndex);
     }
 }

@@ -267,6 +267,26 @@ namespace ExcelIO.Net
             return dt;
         }
 
+        string[] IExcelDataIO.GetRowData(string excelPath, int rowIndex)
+        {
+            string[] results = null;
+            if (null == excelPlugin) return results;
+            if (!File.Exists(excelPath)) return results;
+
+            object workbook = excelPlugin.GetWorkbook(excelPath);
+            object worksheet = excelPlugin.GetWorksheet(workbook, 0);
+            object row = excelPlugin.GetRow(worksheet, rowIndex);
+            int len = excelPlugin.LastColumnIndex(worksheet, rowIndex);
+            len++;
+            results = new string[len];
+            for (int i = 0; i < len; i++)
+            {
+                results[i] = excelPlugin.GetValue(row, i);
+            }
+            return results;
+            //throw new NotImplementedException();
+        }
+
         void IExcelDataIO.ToExcelWithProperty(ExcelSheet excelSheet, string excelPath)
         {
             if (null == excelPlugin) return;
