@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 
 namespace ExcelIO.Framework
 {
@@ -15,7 +14,7 @@ namespace ExcelIO.Framework
 
         public TextAlign textAlign { get; set; }
 
-        public CellDataType cellDataType { get; set; }
+        public CellDataType cellDataType { get; set; } = CellDataType.Text1;
 
         private int GetIntFromHex(string strHex)
         {
