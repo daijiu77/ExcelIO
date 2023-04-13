@@ -258,14 +258,89 @@ namespace ExcelIO.NetCore
             return dt;
         }
 
-        string[] IExcelDataIO.GetRowData(string excelPath, int rowIndex)
+        Dictionary<string, string> IExcelDataIO.GetRowDataKayValue(ExcelSheet excelSheet, string excelPath, int rowIndex)
+        {
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+            string[] rows = ((IExcelDataIO)this).GetRowData(excelSheet, excelPath, rowIndex);
+            string[][] cols = new string[rows.Length][];
+            string[] cols1 = null;
+            string txt = "";
+            int index = excelSheet.HeadRowIndex, n = 0;
+            Dictionary<string, int> keyValues = new Dictionary<string, int>();
+            const int maxRowIndex = 10;
+            while (index < maxRowIndex)
+            {
+                cols1 = ((IExcelDataIO)this).GetRowData(excelSheet, excelPath, index);
+                txt = "";
+                n = 0;
+                keyValues.Clear();
+                foreach (var item in cols1)
+                {
+                    txt = item.Trim();
+                    if (string.IsNullOrEmpty(txt)) break;
+                    if (n >= cols.Length) break;
+                    if (null == cols[n]) cols[n] = new string[2];
+                    cols[n][0] = txt;
+                    keyValues[txt] = n;
+                    n++;
+                }
+                if (!string.IsNullOrEmpty(txt)) break;
+                index++;
+            }
+
+            if (keyValues.Count != rows.Length) return dic;
+
+            bool mbool = false;
+            if (0 < excelSheet.ExcelColumnsMappings.Count)
+            {
+                mbool = true;
+                foreach (var item in excelSheet.ExcelColumnsMappings)
+                {
+                    if (!keyValues.ContainsKey(item.headText))
+                    {
+                        mbool = false;
+                        break;
+                    }
+                    index = keyValues[item.headText];
+                    cols[index][1] = item.fieldName;
+                }
+            }
+
+            if (!mbool)
+            {
+                int len = cols.Length;
+                for (int i = 0; i < len; i++)
+                {
+                    cols[i][1] = cols[i][0];
+                }
+            }
+
+            if (cols.Length != rows.Length) return dic;
+            index = 0;
+            foreach (var item in cols)
+            {
+                dic[item[1]] = rows[index];
+                index++;
+            }
+            return dic;
+        }
+
+        string[] IExcelDataIO.GetRowData(ExcelSheet excelSheet, string excelPath, int rowIndex)
         {
             string[] results = null;
             if (null == excelPlugin) return results;
             if (!File.Exists(excelPath)) return results;
 
             object workbook = excelPlugin.GetWorkbook(excelPath);
-            object worksheet = excelPlugin.GetWorksheet(workbook, 0);
+            object worksheet = null;
+            if (!string.IsNullOrEmpty(excelSheet.SheetName))
+            {
+                worksheet = excelPlugin.GetWorksheet(workbook, excelSheet.SheetName);
+            }
+            else
+            {
+                worksheet = excelPlugin.GetWorksheet(workbook, excelSheet.SheetIndex);
+            }
             object row = excelPlugin.GetRow(worksheet, rowIndex);
             int len = excelPlugin.LastColumnIndex(worksheet, rowIndex);
             len++;
@@ -279,12 +354,32 @@ namespace ExcelIO.NetCore
             //throw new NotImplementedException();
         }
 
+        string[] IExcelDataIO.GetRowData(string excelPath, int rowIndex)
+        {
+            ExcelSheet excelSheet = ExcelSheet.Instance;
+            excelSheet.SheetName = "";
+            excelSheet.SheetIndex = 0;
+            return ((IExcelDataIO)this).GetRowData(excelSheet, excelPath, rowIndex);
+        }
+
         void IExcelDataIO.ToExcelWithProperty(ExcelSheet excelSheet, string excelPath)
+        {
+            ((IExcelDataIO)this).ToExcelWithProperty(excelSheet, excelPath, false);
+        }
+
+        void IExcelDataIO.ToExcelWithProperty(ExcelSheet excelSheet, string excelPath, bool appendToLastSheet)
         {
             if (null == excelPlugin) return;
 
-            workbook = excelPlugin.CreateWorkbook(excelPath);
-            worksheet = excelPlugin.CreateWorksheet(workbook, excelSheet.SheetIndex, excelSheet.SheetName);
+            if (File.Exists(excelPath) && (null == workbook))
+            {
+                workbook = excelPlugin.GetWorkbook(excelPath);
+            }
+            else if (null == workbook)
+            {
+                workbook = excelPlugin.CreateWorkbook(excelPath);
+            }
+            worksheet = excelPlugin.CreateWorksheet(workbook, excelSheet.SheetIndex, excelSheet.SheetName, appendToLastSheet);
             if (null == worksheet)
             {
                 throw new Exception("Worksheet is not null!");
@@ -385,6 +480,18 @@ namespace ExcelIO.NetCore
             byte[] data = excelPlugin.GetExcelData(workbook);
             excelPlugin.Dispose();
             return data;
+        }
+
+        string[] IExcelDataIO.GetWorksheetNames(string excelPath)
+        {
+            string[] results = null;
+            if (null == excelPlugin) return results;
+            if (!File.Exists(excelPath)) return results;
+
+            object workbook = excelPlugin.GetWorkbook(excelPath);
+            results = excelPlugin.GetWorksheetNames(workbook);
+            excelPlugin.Dispose();
+            return results;
         }
 
     }

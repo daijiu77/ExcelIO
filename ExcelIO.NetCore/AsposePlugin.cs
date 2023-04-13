@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -20,16 +21,24 @@ namespace ExcelIO.NetCore
             return workbook;
         }
 
-        object IExcelPlugin.CreateWorksheet(object workbook, int sheetIndex, string sheetName)
+        object IExcelPlugin.CreateWorksheet(object workbook, int sheetIndex, string sheetName, bool appendToLastSheet)
         {
-            int n = sheetIndex + 1;
-            int x = 0;
-            const int max = 100;
-            while (((Workbook)workbook).Worksheets.Count < n)
+            if (appendToLastSheet)
             {
+                sheetIndex = ((Workbook)workbook).Worksheets.Count;
                 ((Workbook)workbook).Worksheets.Add();
-                x++;
-                if (max <= x) break;
+            }
+            else
+            {
+                int n = sheetIndex + 1;
+                int x = 0;
+                const int max = 100;
+                while (((Workbook)workbook).Worksheets.Count < n)
+                {
+                    ((Workbook)workbook).Worksheets.Add();
+                    x++;
+                    if (max <= x) break;
+                }
             }
 
             Worksheet worksheet = ((Workbook)workbook).Worksheets[sheetIndex];
@@ -147,12 +156,32 @@ namespace ExcelIO.NetCore
 
         object IExcelPlugin.GetWorksheet(object workbook, string sheetName)
         {
-            return ((IExcelPlugin)this).CreateWorksheet(workbook, 0, sheetName);
+            string[] names = ((IExcelPlugin)this).GetWorksheetNames(workbook);
+            string sn = sheetName.ToLower();
+            object sheet = null;
+            int n = 0;
+            foreach (var item in names)
+            {
+                if (item.ToLower().Contains(sn))
+                {
+                    sheet = ((Workbook)workbook).Worksheets[n];
+                    break;
+                }
+                n++;
+            }
+
+            if (null != sheet) return sheet;
+            return ((IExcelPlugin)this).CreateWorksheet(workbook, 0, sheetName, false);
         }
 
         object IExcelPlugin.GetWorksheet(object workbook, int sheetIndex)
         {
-            return ((IExcelPlugin)this).CreateWorksheet(workbook, sheetIndex, null);
+            WorksheetCollection worksheets = ((Workbook)workbook).Worksheets;
+            if (sheetIndex < worksheets.Count)
+            {
+                return worksheets[sheetIndex];
+            }
+            return ((IExcelPlugin)this).CreateWorksheet(workbook, sheetIndex, null, false);
         }
 
         int IExcelPlugin.LastColumnIndex(object sheet, int rowIndex)
@@ -194,7 +223,7 @@ namespace ExcelIO.NetCore
 
         object IExcelPlugin.SetSheetName(object workbook, int sheetIndex, string sheetName)
         {
-            return ((IExcelPlugin)this).CreateWorksheet(workbook, sheetIndex, sheetName);
+            return ((IExcelPlugin)this).CreateWorksheet(workbook, sheetIndex, sheetName, false);
         }
 
         void IExcelPlugin.SetValue(object row, CellProperty cellProperty)
@@ -277,6 +306,17 @@ namespace ExcelIO.NetCore
 
             style.Number = (int)cellProperty.cellDataType;
             cell.SetStyle(style);
+        }
+
+        string[] IExcelPlugin.GetWorksheetNames(object workbook)
+        {
+            WorksheetCollection sheets = ((Workbook)workbook).Worksheets;
+            List<string> names = new List<string>();
+            foreach (Worksheet sheet in sheets)
+            {
+                names.Add(sheet.Name);
+            }
+            return names.ToArray();
         }
     }
 }

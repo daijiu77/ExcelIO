@@ -8,11 +8,14 @@ namespace ExcelIO.Net
         int LastRowIndex(object sheet);
 
         object CreateWorkbook(string excelPath);
-        object CreateWorksheet(object workbook, int sheetIndex, string sheetName);
+        
+        object CreateWorksheet(object workbook, int sheetIndex, string sheetName, bool appendToLastSheet);
 
         object GetWorkbook(string excelPath);
         object GetWorksheet(object workbook, string sheetName);
         object GetWorksheet(object workbook, int sheetIndex);
+
+        string[] GetWorksheetNames(object workbook);
 
         object GetRow(object worksheet, int rowIndex);
         string GetValue(object row, int columnIndex);
