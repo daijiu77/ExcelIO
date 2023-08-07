@@ -615,63 +615,205 @@ namespace ExcelIO.Framework
         {
             if (null == excelFileData) return null;
             Stream ms = BytesToStream(excelFileData);
-            return ((IExcelDataIO)this).FromExcelStream<T>(excelSheet, ms);
+            try
+            {
+                return ((IExcelDataIO)this).FromExcelStream<T>(excelSheet, ms);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                if(null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
 
         DataTable IExcelDataIO.FromExcelBytes(ExcelSheet excelSheet, byte[] excelFileData)
         {
             if (null == excelFileData) return null;
             Stream ms = BytesToStream(excelFileData);
-            return ((IExcelDataIO)this).FromExcelStream(excelSheet, ms);
+            try
+            {
+                return ((IExcelDataIO)this).FromExcelStream(excelSheet, ms);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                if (null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
 
         DataTable IExcelDataIO.FromExcelBytes(ExcelSheet excelSheet, byte[] excelFileData, bool dataTableHeaderOfExcelHeader)
         {
             if (null == excelFileData) return null;
             Stream ms = BytesToStream(excelFileData);
-            return ((IExcelDataIO)this).FromExcelStream(excelSheet, ms, dataTableHeaderOfExcelHeader);
+            try
+            {
+                return ((IExcelDataIO)this).FromExcelStream(excelSheet, ms, dataTableHeaderOfExcelHeader);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                if (null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
 
         void IExcelDataIO.FromExcelBytes(ExcelSheet excelSheet, byte[] excelFileData, Action<DataRow> action)
         {
             if (null == excelFileData) return;
             Stream ms = BytesToStream(excelFileData);
-            ((IExcelDataIO)this).FromExcelStream(excelSheet, ms, action);
+            try
+            {
+                ((IExcelDataIO)this).FromExcelStream(excelSheet, ms, action);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                if (null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
 
         void IExcelDataIO.FromExcelBytes<T>(ExcelSheet excelSheet, byte[] excelFileData, Action<T> action)
         {
             if (null == excelFileData) return;
             Stream ms = BytesToStream(excelFileData);
-            ((IExcelDataIO)this).FromExcelStream<T>(excelSheet, ms, action);
+            try
+            {
+                ((IExcelDataIO)this).FromExcelStream<T>(excelSheet, ms, action);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                if (null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
 
         string[] IExcelDataIO.GetRowDataFromBytes(byte[] excelFileData, int rowIndex)
         {
             if (null == excelFileData) return null;
             Stream ms = BytesToStream(excelFileData);
-            return ((IExcelDataIO)this).GetRowDataFromStream(ms, rowIndex);
+            try
+            {
+                return ((IExcelDataIO)this).GetRowDataFromStream(ms, rowIndex);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                if (null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
 
         string[] IExcelDataIO.GetRowDataFromBytes(ExcelSheet excelSheet, byte[] excelFileData, int rowIndex)
         {
             if (null == excelFileData) return null;
             Stream ms = BytesToStream(excelFileData);
-            return ((IExcelDataIO)this).GetRowDataFromStream(excelSheet, ms, rowIndex);
+            try
+            {
+                return ((IExcelDataIO)this).GetRowDataFromStream(excelSheet, ms, rowIndex);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
 
         Dictionary<string, string> IExcelDataIO.GetRowDataKayValueFromBytes(ExcelSheet excelSheet, byte[] excelFileData, int rowIndex)
         {
             if (null == excelFileData) return null;
             Stream ms = BytesToStream(excelFileData);
-            return ((IExcelDataIO)this).GetRowDataKayValueFromStream(excelSheet, ms, rowIndex);
+            try
+            {
+                return ((IExcelDataIO)this).GetRowDataKayValueFromStream(excelSheet, ms, rowIndex);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                if (null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
 
         string[] IExcelDataIO.GetWorksheetNamesFromBytes(byte[] excelFileData)
         {
             if (null == excelFileData) return null;
             Stream ms = BytesToStream(excelFileData);
-            return ((IExcelDataIO)this).GetWorksheetNamesFromStream(ms);
+            try
+            {
+                return ((IExcelDataIO)this).GetWorksheetNamesFromStream(ms);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (null != ms)
+                {
+                    ms.Dispose();
+                    ms.Close();
+                }
+            }
         }
     }
 }
