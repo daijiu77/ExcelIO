@@ -8,6 +8,7 @@
 *.obj
 
 .vs
+.svn
 
 /ExcelIO.Framework/bin
 /ExcelIO.Net/bin

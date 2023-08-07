@@ -87,7 +87,7 @@ namespace ExcelIO.Framework
 
             void IDisposable.Dispose()
             {
-                excelSheet._excelColumnsMappings.Clear();
+                //excelSheet._excelColumnsMappings.Clear();
             }
 
             bool IEnumerator.MoveNext()

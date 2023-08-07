@@ -13,10 +13,18 @@ namespace ExcelIO.Framework
     {
         private Workbook workbook = null;
         private string excelPath = "";
+        private Stream stream = null;
 
         object IExcelPlugin.CreateWorkbook(string excelPath)
         {
             this.excelPath = null == excelPath ? "" : excelPath;
+            workbook = new Workbook();
+            return workbook;
+        }
+
+        object IExcelPlugin.CreateWorkbookByStream(Stream excelStream)
+        {
+            this.stream = excelStream;
             workbook = new Workbook();
             return workbook;
         }
@@ -151,6 +159,13 @@ namespace ExcelIO.Framework
         {
             this.excelPath = excelPath;
             workbook = new Workbook(excelPath);
+            return workbook;
+        }
+
+        object IExcelPlugin.GetWorkbookByStream(Stream excelStream)
+        {
+            this.stream = excelStream;
+            workbook = new Workbook(excelStream);
             return workbook;
         }
 
@@ -318,5 +333,6 @@ namespace ExcelIO.Framework
             }
             return names.ToArray();
         }
+
     }
 }

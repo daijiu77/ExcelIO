@@ -1,4 +1,3 @@
-using Aspose.Cells;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,8 +11,8 @@ namespace ExcelIO.NetCore
         private IExcelPlugin excelPlugin = null;
         private ExcelRowChildren excelRowChildren = new ExcelRowChildren();
 
-        private object workbook = null;
-        private object worksheet = null;
+        private object work_book = null;
+        private object work_sheet = null;
         private List<CellProperty> headList = null;
         private CellProperty cellP = new CellProperty();
         private int rowIndex = 0;
@@ -85,12 +84,41 @@ namespace ExcelIO.NetCore
             return isObjectOrBaseType;
         }
 
-        private void from_excel<T>(ExcelSheet excelSheet, string excelPath, Action<DataRow> action, Action<T> actionT, List<T> list, bool dataTableHeaderOfExcelHeader, ref DataTable dataTable)
+        private object GetWorkbook(string excelPath, Stream excelStream)
         {
-            if (null == excelPlugin) return;
-            if (!File.Exists(excelPath)) return;
+            if (null == excelPlugin) throw new Exception("Plugin cann't is null");
+            bool isFilePath = false;
+            if (!string.IsNullOrEmpty(excelPath))
+            {
+                isFilePath = true;
+                if (!File.Exists(excelPath)) throw new Exception("The source of excel cann't is empty");
+            }
 
-            object workbook = excelPlugin.GetWorkbook(excelPath);
+            if ((false == isFilePath) && (null == excelStream)) throw new Exception("The path or stream of excel cann't is empty");
+
+            object workbook = null;
+            try
+            {
+                if (null != excelStream)
+                {
+                    workbook = excelPlugin.GetWorkbookByStream(excelStream);
+                }
+                else
+                {
+                    workbook = excelPlugin.GetWorkbook(excelPath);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return workbook;
+        }
+
+        private void from_excel<T>(ExcelSheet excelSheet, string excelPath, Stream excelStream, Action<DataRow> action, Action<T> actionT, List<T> list, bool dataTableHeaderOfExcelHeader, ref DataTable dataTable)
+        {
+            object workbook = GetWorkbook(excelPath, excelStream);
             object worksheet = null;
             if (string.IsNullOrEmpty(excelSheet.SheetName))
             {
@@ -227,41 +255,49 @@ namespace ExcelIO.NetCore
         void IExcelDataIO.FromExcel(ExcelSheet excelSheet, string excelPath, Action<DataRow> action)
         {
             DataTable dt = null;
-            from_excel<object>(excelSheet, excelPath, action, null, null, false, ref dt);
+            from_excel<object>(excelSheet, excelPath, null, action, null, null, false, ref dt);
         }
 
         List<T> IExcelDataIO.FromExcel<T>(ExcelSheet excelSheet, string excelPath)
         {
             List<T> list = new List<T>();
             DataTable dt = null;
-            from_excel<T>(excelSheet, excelPath, null, null, list, false, ref dt);
+            from_excel<T>(excelSheet, excelPath, null, null, null, list, false, ref dt);
             return list;
         }
 
         void IExcelDataIO.FromExcel<T>(ExcelSheet excelSheet, string excelPath, Action<T> action)
         {
             DataTable dt = null;
-            from_excel<T>(excelSheet, excelPath, null, action, null, false, ref dt);
+            from_excel<T>(excelSheet, excelPath, null, null, action, null, false, ref dt);
         }
 
         DataTable IExcelDataIO.FromExcel(ExcelSheet excelSheet, string excelPath)
         {
             DataTable dt = new DataTable();
-            from_excel<object>(excelSheet, excelPath, null, null, null, false, ref dt);
+            from_excel<object>(excelSheet, excelPath, null, null, null, null, false, ref dt);
             return dt;
         }
 
         DataTable IExcelDataIO.FromExcel(ExcelSheet excelSheet, string excelPath, bool dataTableHeaderOfExcelHeader)
         {
             DataTable dt = new DataTable();
-            from_excel<object>(excelSheet, excelPath, null, null, null, dataTableHeaderOfExcelHeader, ref dt);
+            from_excel<object>(excelSheet, excelPath, null, null, null, null, dataTableHeaderOfExcelHeader, ref dt);
             return dt;
         }
 
-        Dictionary<string, string> IExcelDataIO.GetRowDataKayValue(ExcelSheet excelSheet, string excelPath, int rowIndex)
+        private Dictionary<string, string> GetRowData_KayValue(ExcelSheet excelSheet, string excelPath, Stream excelStream, int rowIndex)
         {
             Dictionary<string, string> dic = new Dictionary<string, string>();
-            string[] rows = ((IExcelDataIO)this).GetRowData(excelSheet, excelPath, rowIndex);
+            string[] rows = null;
+            if (null != excelStream)
+            {
+                rows = ((IExcelDataIO)this).GetRowDataFromStream(excelSheet, excelStream, rowIndex);
+            }
+            else
+            {
+                rows = ((IExcelDataIO)this).GetRowData(excelSheet, excelPath, rowIndex);
+            }
             string[][] cols = new string[rows.Length][];
             string[] cols1 = null;
             string txt = "";
@@ -270,7 +306,14 @@ namespace ExcelIO.NetCore
             const int maxRowIndex = 10;
             while (index < maxRowIndex)
             {
-                cols1 = ((IExcelDataIO)this).GetRowData(excelSheet, excelPath, index);
+                if (null != excelStream)
+                {
+                    cols1 = GetRow_Data(excelSheet, null, excelStream, index);
+                }
+                else
+                {
+                    cols1 = ((IExcelDataIO)this).GetRowData(excelSheet, excelPath, index);
+                }
                 txt = "";
                 n = 0;
                 keyValues.Clear();
@@ -325,13 +368,15 @@ namespace ExcelIO.NetCore
             return dic;
         }
 
-        string[] IExcelDataIO.GetRowData(ExcelSheet excelSheet, string excelPath, int rowIndex)
+        Dictionary<string, string> IExcelDataIO.GetRowDataKayValue(ExcelSheet excelSheet, string excelPath, int rowIndex)
+        {
+            return GetRowData_KayValue(excelSheet, excelPath, null, rowIndex);
+        }
+
+        private string[] GetRow_Data(ExcelSheet excelSheet, string excelPath, Stream excelStream, int rowIndex)
         {
             string[] results = null;
-            if (null == excelPlugin) return results;
-            if (!File.Exists(excelPath)) return results;
-
-            object workbook = excelPlugin.GetWorkbook(excelPath);
+            object workbook = GetWorkbook(excelPath, excelStream);
             object worksheet = null;
             if (!string.IsNullOrEmpty(excelSheet.SheetName))
             {
@@ -351,7 +396,11 @@ namespace ExcelIO.NetCore
             }
             excelPlugin.Dispose();
             return results;
-            //throw new NotImplementedException();
+        }
+
+        string[] IExcelDataIO.GetRowData(ExcelSheet excelSheet, string excelPath, int rowIndex)
+        {
+            return GetRow_Data(excelSheet, excelPath, null, rowIndex);
         }
 
         string[] IExcelDataIO.GetRowData(string excelPath, int rowIndex)
@@ -371,16 +420,16 @@ namespace ExcelIO.NetCore
         {
             if (null == excelPlugin) return;
 
-            if (File.Exists(excelPath) && (null == workbook))
+            if (File.Exists(excelPath) && (null == work_book))
             {
-                workbook = excelPlugin.GetWorkbook(excelPath);
+                work_book = excelPlugin.GetWorkbook(excelPath);
             }
-            else if (null == workbook)
+            else if (null == work_book)
             {
-                workbook = excelPlugin.CreateWorkbook(excelPath);
+                work_book = excelPlugin.CreateWorkbook(excelPath);
             }
-            worksheet = excelPlugin.CreateWorksheet(workbook, excelSheet.SheetIndex, excelSheet.SheetName, appendToLastSheet);
-            if (null == worksheet)
+            work_sheet = excelPlugin.CreateWorksheet(work_book, excelSheet.SheetIndex, excelSheet.SheetName, appendToLastSheet);
+            if (null == work_sheet)
             {
                 throw new Exception("Worksheet is not null!");
             }
@@ -388,7 +437,7 @@ namespace ExcelIO.NetCore
             headList = excelSheet.ExcelColumnsMappings;
             headList.Sort();
             rowIndex = excelSheet.HeadRowIndex;
-            object row = excelPlugin.GetRow(worksheet, rowIndex);
+            object row = excelPlugin.GetRow(work_sheet, rowIndex);
             int columnIndex = 0;
             foreach (CellProperty item in headList)
             {
@@ -402,7 +451,7 @@ namespace ExcelIO.NetCore
 
         void IExcelDataIO.ToExcelWithData(ExcelRowChildren excelRowChildren)
         {
-            if (null == worksheet)
+            if (null == work_sheet)
             {
                 throw new Exception("Worksheet is not null!");
             }
@@ -419,7 +468,7 @@ namespace ExcelIO.NetCore
 
             cpList.Sort();
 
-            object row = excelPlugin.GetRow(worksheet, rowIndex);
+            object row = excelPlugin.GetRow(work_sheet, rowIndex);
             foreach (CellProperty item in cpList)
             {
                 excelPlugin.SetValue(row, item);
@@ -462,16 +511,16 @@ namespace ExcelIO.NetCore
         void IDisposable.Dispose()
         {
             excelRowChildren.Clear();
-            workbook = null;
-            worksheet = null;
+            work_book = null;
+            work_sheet = null;
             excelPlugin.Save();
             excelPlugin.Dispose();
         }
 
         byte[] IExcelDataIO.ToExcelGetBody()
         {
-            if (null == workbook) return null;
-            return excelPlugin.GetExcelData(workbook);
+            if (null == work_book) return null;
+            return excelPlugin.GetExcelData(work_book);
         }
 
         byte[] IExcelDataIO.ToExcelGetBody(string excelPath)
@@ -494,5 +543,135 @@ namespace ExcelIO.NetCore
             return results;
         }
 
+        List<T> IExcelDataIO.FromExcelStream<T>(ExcelSheet excelSheet, Stream execlStream)
+        {
+            List<T> list = new List<T>();
+            DataTable dt = null;
+            from_excel<T>(excelSheet, null, execlStream, null, null, list, false, ref dt);
+            return list;
+        }
+
+        DataTable IExcelDataIO.FromExcelStream(ExcelSheet excelSheet, Stream execlStream)
+        {
+            DataTable dt = new DataTable();
+            from_excel<object>(excelSheet, null, execlStream, null, null, null, false, ref dt);
+            return dt;
+        }
+
+        DataTable IExcelDataIO.FromExcelStream(ExcelSheet excelSheet, Stream execlStream, bool dataTableHeaderOfExcelHeader)
+        {
+            DataTable dt = new DataTable();
+            from_excel<object>(excelSheet, null, execlStream, null, null, null, dataTableHeaderOfExcelHeader, ref dt);
+            return dt;
+        }
+
+        void IExcelDataIO.FromExcelStream(ExcelSheet excelSheet, Stream execlStream, Action<DataRow> action)
+        {
+            DataTable dt = null;
+            from_excel<object>(excelSheet, null, execlStream, action, null, null, false, ref dt);
+        }
+
+        void IExcelDataIO.FromExcelStream<T>(ExcelSheet excelSheet, Stream execlStream, Action<T> action)
+        {
+            DataTable dt = null;
+            from_excel<T>(excelSheet, null, execlStream, null, action, null, false, ref dt);
+        }
+
+        string[] IExcelDataIO.GetRowDataFromStream(Stream execlStream, int rowIndex)
+        {
+            ExcelSheet excelSheet = ExcelSheet.Instance;
+            excelSheet.SheetName = "";
+            excelSheet.SheetIndex = 0;
+            return GetRow_Data(excelSheet, null, execlStream, rowIndex);
+        }
+
+        string[] IExcelDataIO.GetRowDataFromStream(ExcelSheet excelSheet, Stream execlStream, int rowIndex)
+        {
+            return GetRow_Data(excelSheet, null, execlStream, rowIndex);
+        }
+
+        Dictionary<string, string> IExcelDataIO.GetRowDataKayValueFromStream(ExcelSheet excelSheet, Stream execlStream, int rowIndex)
+        {
+            return GetRowData_KayValue(excelSheet, null, execlStream, rowIndex);
+        }
+
+        string[] IExcelDataIO.GetWorksheetNamesFromStream(Stream execlStream)
+        {
+            object workbook = excelPlugin.GetWorkbookByStream(execlStream);
+            string[] results = excelPlugin.GetWorksheetNames(workbook);
+            excelPlugin.Dispose();
+            return results;
+        }
+
+        private Stream BytesToStream(byte[] data)
+        {
+            if (null == data) return null;
+            MemoryStream ms = new MemoryStream();
+            ms.Write(data, 0, data.Length);
+            return ms;
+        }
+
+        List<T> IExcelDataIO.FromExcelBytes<T>(ExcelSheet excelSheet, byte[] excelFileData)
+        {
+            if (null == excelFileData) return null;
+            Stream ms = BytesToStream(excelFileData);
+            return ((IExcelDataIO)this).FromExcelStream<T>(excelSheet, ms);
+        }
+
+        DataTable IExcelDataIO.FromExcelBytes(ExcelSheet excelSheet, byte[] excelFileData)
+        {
+            if (null == excelFileData) return null;
+            Stream ms = BytesToStream(excelFileData);
+            return ((IExcelDataIO)this).FromExcelStream(excelSheet, ms);
+        }
+
+        DataTable IExcelDataIO.FromExcelBytes(ExcelSheet excelSheet, byte[] excelFileData, bool dataTableHeaderOfExcelHeader)
+        {
+            if (null == excelFileData) return null;
+            Stream ms = BytesToStream(excelFileData);
+            return ((IExcelDataIO)this).FromExcelStream(excelSheet, ms, dataTableHeaderOfExcelHeader);
+        }
+
+        void IExcelDataIO.FromExcelBytes(ExcelSheet excelSheet, byte[] excelFileData, Action<DataRow> action)
+        {
+            if (null == excelFileData) return;
+            Stream ms = BytesToStream(excelFileData);
+            ((IExcelDataIO)this).FromExcelStream(excelSheet, ms, action);
+        }
+
+        void IExcelDataIO.FromExcelBytes<T>(ExcelSheet excelSheet, byte[] excelFileData, Action<T> action)
+        {
+            if (null == excelFileData) return;
+            Stream ms = BytesToStream(excelFileData);
+            ((IExcelDataIO)this).FromExcelStream<T>(excelSheet, ms, action);
+        }
+
+        string[] IExcelDataIO.GetRowDataFromBytes(byte[] excelFileData, int rowIndex)
+        {
+            if (null == excelFileData) return null;
+            Stream ms = BytesToStream(excelFileData);
+            return ((IExcelDataIO)this).GetRowDataFromStream(ms, rowIndex);
+        }
+
+        string[] IExcelDataIO.GetRowDataFromBytes(ExcelSheet excelSheet, byte[] excelFileData, int rowIndex)
+        {
+            if (null == excelFileData) return null;
+            Stream ms = BytesToStream(excelFileData);
+            return ((IExcelDataIO)this).GetRowDataFromStream(excelSheet, ms, rowIndex);
+        }
+
+        Dictionary<string, string> IExcelDataIO.GetRowDataKayValueFromBytes(ExcelSheet excelSheet, byte[] excelFileData, int rowIndex)
+        {
+            if (null == excelFileData) return null;
+            Stream ms = BytesToStream(excelFileData);
+            return ((IExcelDataIO)this).GetRowDataKayValueFromStream(excelSheet, ms, rowIndex);
+        }
+
+        string[] IExcelDataIO.GetWorksheetNamesFromBytes(byte[] excelFileData)
+        {
+            if (null == excelFileData) return null;
+            Stream ms = BytesToStream(excelFileData);
+            return ((IExcelDataIO)this).GetWorksheetNamesFromStream(ms);
+        }
     }
 }
